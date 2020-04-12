@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Post } from './post.model';
 
@@ -11,16 +12,36 @@ export class PostService {
 
   constructor(private http: HttpClient) {}
 
+  _notifyTheFuckers(posts) {
+    this.posts = posts;
+    return this.postsUpdated.next([...this.posts]);
+  }
+
   getPosts () {
-    this.http.get<{message: string, posts: Post[]}>('http://localhost:3000/api/posts')
-      .subscribe((postData) => {
-          this.posts = postData.posts;
-          this.postsUpdated.next([...this.posts]);
+    this.http
+      .get<{message: string, posts: any}>(
+        'http://localhost:3000/api/posts'
+      )
+      .pipe(map((postData) => {
+        return postData.posts.map(post => {
+          return {
+            title: post.title,
+            content: post.content,
+            id: post._id
+          };
+        });
+      }))
+      .subscribe((transformedPosts) => {
+          this._notifyTheFuckers(transformedPosts);
       });
   }
 
   getPostUpdateListener () {
     return this.postsUpdated.asObservable();
+  }
+
+  getPost(id: string){
+    return {...this.posts.find(p => p.id === id)};
   }
 
   addPost(title: string, content: string) {
@@ -29,11 +50,26 @@ export class PostService {
       title: title,
       content: content
     };
-    this.http.post<{message: string}>('http://localhost:3000/api/posts', post)
+    this.http.post<{message: string, postId: string}>('http://localhost:3000/api/posts', post)
       .subscribe( (responseData) => {
-        console.log(responseData);
-        this.posts.push(post);
-        this.postsUpdated.next([...this.posts]);
+        post.id = responseData.postId;
+        this._notifyTheFuckers(this.posts.concat([post]));
+      });
+  }
+
+  updatePost(id: string, title: string, content: string){
+    const post: Post = {
+      id: id,
+      title: title,
+      content: content
+    }
+  }
+
+  deletePost(id: string) {
+    console.log(id);
+    this.http.delete(`http://localhost:3000/api/posts/${id}`)
+      .subscribe((responseData) => {
+        this._notifyTheFuckers(this.posts.filter(post => post.id !== id));
       });
   }
 }

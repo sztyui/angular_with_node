@@ -1,3 +1,9 @@
+if (process.env.NODE_ENV !== 'production') {
+  const dotenv = require('dotenv');
+  dotenv.config({path: './development.env'});
+  console.log(process.env);
+}
+
 const app = require('./backend/app');
 const debug = require('debug')('node-angular');
 const http = require('http');

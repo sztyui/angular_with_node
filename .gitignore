@@ -175,4 +175,7 @@ jspm_packages/
 # Temporary folders
 temp/
 
+# Environment setup files
+environment.sh
+
 # End of https://www.gitignore.io/api/node,angular
