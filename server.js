@@ -1,7 +1,5 @@
 if (process.env.NODE_ENV !== 'production') {
-  const dotenv = require('dotenv');
-  dotenv.config({path: './development.env'});
-  console.log(process.env);
+  const dotenv = require('dotenv').config();
 }
 
 const app = require('./backend/app');
