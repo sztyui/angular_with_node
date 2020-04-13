@@ -4,15 +4,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from routers.posts import posts_route
 
 app = FastAPI()
+
+# Origins setting up for CORS
 origins = [
   "http://localhost:4200",
   "http://localhost"
 ]
+
+# Middleware definition, Allowed Headers and Allowed Methods
 app.add_middleware(
   CORSMiddleware,
   allow_origins=origins,
   allow_credentials=True,
-  allow_methods=["*"],
+  allow_methods=["GET", "PUT", "POST", "DELETE"],
   allow_headers=["*"],
 )
 
