@@ -3,10 +3,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-const postsRoutes = require('./routes/posts');
+routes = [
+  {prefix: "/api/posts", route: require('./routes/posts')},
+  {prefix: "/api/user", route: require('./routes/user')}
+]
 
 const app = express();
-const dbConnectionString = `mongodb+srv://isti:${process.env.MONGO_PASSWORD}@cluster0-dejvz.mongodb.net/node-angular?retryWrites=true&w=majority`
+const dbConnectionString = `mongodb+srv://isti:${process.env.MONGO_PASSWORD}@cluster0-dejvz.mongodb.net/node-angular`
 mongoose.connect(dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() =>{
     console.log('Connected to the database!');
@@ -32,6 +35,11 @@ app.use((req, res, next)=>{
   next();
 });
 
-app.use("/api/posts", postsRoutes);
+// app.use("/api/posts", postsRoutes);
+// app.use("/users", userRoutes);
+
+routes.map(route => {
+  app.use(route.prefix, route.route);
+})
 
 module.exports = app;

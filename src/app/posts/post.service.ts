@@ -6,35 +6,47 @@ import { map } from "rxjs/operators";
 import { Post } from "./post.model";
 import { Router } from "@angular/router";
 
-@Injectable({ providedIn: "root" })
+@Injectable({
+  providedIn: "root"
+})
 export class PostService {
   private posts: Post[] = [];
-  private postsUpdated = new Subject<Post[]>();
+  private postsUpdated = new Subject<{posts: Post[], postCount: number}>();
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  _notifyTheFuckers(posts) {
-    this.posts = posts;
-    return this.postsUpdated.next([...this.posts]);
+  _notifyTheFuckers(transformedPostData) {
+    this.posts = transformedPostData.posts;
+    return this.postsUpdated.next({
+        posts: [...this.posts],
+        postCount: transformedPostData.postCount
+      });
   }
 
-  getPosts() {
+  getPosts(postsPerPage: number, currentPage: number) {
+    const queryParams=`pagesize=${postsPerPage}&page=${currentPage}`
     this.http
-      .get<{ message: string; posts: any }>("http://localhost:3000/api/posts")
+      .get<{ message: string; posts: any, maxPosts: number}>(`http://localhost:3000/api/posts?${queryParams}`)
       .pipe(
         map((postData) => {
-          return postData.posts.map((post) => {
-            return {
-              title: post.title,
-              content: post.content,
-              id: post._id,
-              imagePath: post.imagePath,
-            };
-          });
+          return {
+            posts: postData.posts.map((post) => {
+              return {
+                title: post.title,
+                content: post.content,
+                id: post._id,
+                imagePath: post.imagePath,
+              }
+            }),
+            maxPosts: postData.maxPosts
+          };
         })
       )
-      .subscribe((transformedPosts) => {
-        this._notifyTheFuckers(transformedPosts);
+      .subscribe((transformedPostData) => {
+        this._notifyTheFuckers({
+          posts:  transformedPostData.posts,
+          postCount: transformedPostData.maxPosts
+        });
       });
   }
 
@@ -62,13 +74,6 @@ export class PostService {
         postData
       )
       .subscribe((responseData) => {
-        const post: Post = {
-          id: responseData.post.id,
-          title: title,
-          content: content,
-          imagePath: responseData.post.imagePath,
-        };
-        this._notifyTheFuckers(this.posts.concat([post]));
         this.router.navigate(["/"]);
       });
   }
@@ -92,26 +97,12 @@ export class PostService {
     this.http
       .put(`http://localhost:3000/api/posts/${id}`, postData)
       .subscribe((response) => {
-        const updatedPosts = [...this.posts];
-        const oldPostIndex = updatedPosts.findIndex((p) => p.id === id);
-        const post: Post = {
-          id: id,
-          title: title,
-          content: content,
-          imagePath: "",
-        };
-        updatedPosts[oldPostIndex] = post;
-        this._notifyTheFuckers(updatedPosts);
         this.router.navigate(["/"]);
       });
   }
 
   deletePost(id: string) {
     console.log(id);
-    this.http
-      .delete(`http://localhost:3000/api/posts/${id}`)
-      .subscribe((responseData) => {
-        this._notifyTheFuckers(this.posts.filter((post) => post.id !== id));
-      });
+    return this.http.delete(`http://localhost:3000/api/posts/${id}`);
   }
 }
