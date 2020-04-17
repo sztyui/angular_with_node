@@ -7,26 +7,31 @@ import { Post } from "./post.model";
 import { Router } from "@angular/router";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class PostService {
   private posts: Post[] = [];
-  private postsUpdated = new Subject<{posts: Post[], postCount: number}>();
+  private postsUpdated = new Subject<{
+    posts: Post[];
+    postCount: number;
+  }>();
 
   constructor(private http: HttpClient, private router: Router) {}
 
   _notifyTheFuckers(transformedPostData) {
     this.posts = transformedPostData.posts;
     return this.postsUpdated.next({
-        posts: [...this.posts],
-        postCount: transformedPostData.postCount
-      });
+      posts: [...this.posts],
+      postCount: transformedPostData.postCount,
+    });
   }
 
   getPosts(postsPerPage: number, currentPage: number) {
-    const queryParams=`pagesize=${postsPerPage}&page=${currentPage}`
+    const queryParams = `pagesize=${postsPerPage}&page=${currentPage}`;
     this.http
-      .get<{ message: string; posts: any, maxPosts: number}>(`http://localhost:3000/api/posts?${queryParams}`)
+      .get<{ message: string; posts: any; maxPosts: number }>(
+        `http://localhost:3000/api/posts?${queryParams}`
+      )
       .pipe(
         map((postData) => {
           return {
@@ -36,16 +41,16 @@ export class PostService {
                 content: post.content,
                 id: post._id,
                 imagePath: post.imagePath,
-              }
+              };
             }),
-            maxPosts: postData.maxPosts
+            maxPosts: postData.maxPosts,
           };
         })
       )
       .subscribe((transformedPostData) => {
         this._notifyTheFuckers({
-          posts:  transformedPostData.posts,
-          postCount: transformedPostData.maxPosts
+          posts: transformedPostData.posts,
+          postCount: transformedPostData.maxPosts,
         });
       });
   }

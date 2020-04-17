@@ -302,4 +302,7 @@ env.bak/
 venv.bak/
 pip-selfcheck.json
 
-
+backend/images
+*.jpg
+*.jpeg
+*.png
