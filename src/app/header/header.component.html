@@ -4,8 +4,12 @@
   </span>
   <span class="spacer"></span>
   <div *ngIf="userIsAuthenticated">
-    <mat-icon class="example-icon smaller" aria-hidden="false" aria-label="Example delete icon">accessibility_new</mat-icon>
-    <a class="smaller">{{authenticatedUserName}}</a>
+    <p class="mat-subheading-1">
+      <mat-icon class="example-icon smaller" aria-hidden="false" aria-label="Example delete icon">
+        accessibility_new
+      </mat-icon>
+      {{authenticatedUserName}}
+    </p>
   </div>
   <span class="spacer"></span>
   <ul>

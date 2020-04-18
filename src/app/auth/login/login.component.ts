@@ -1,18 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent{
-  isLoading = false;
-  invalid = false;
+export class LoginComponent implements OnInit, OnDestroy{
+  public isLoading = false;
+
+  private authStatusSubs: Subscription;
 
   constructor(public authService: AuthService){}
 
-  onlogin(formData: NgForm){
+  public ngOnInit () {
+    this.authStatusSubs = this.authService.getAuthStatusListener().subscribe((response) => {
+      this.isLoading = false;
+    });
+  }
+
+  onlogin (formData: NgForm) {
     if (formData.invalid){
       return;
     }
@@ -21,5 +29,9 @@ export class LoginComponent{
       formData.value.email,
       formData.value.password
     )
+  }
+
+  public ngOnDestroy () {
+    this.authStatusSubs.unsubscribe();
   }
 }
