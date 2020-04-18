@@ -41,6 +41,7 @@ export class PostService {
                 content: post.content,
                 id: post._id,
                 imagePath: post.imagePath,
+                creator: post.creator
               };
             }),
             maxPosts: postData.maxPosts,
@@ -48,6 +49,7 @@ export class PostService {
         })
       )
       .subscribe((transformedPostData) => {
+        console.log(transformedPostData);
         this._notifyTheFuckers({
           posts: transformedPostData.posts,
           postCount: transformedPostData.maxPosts,

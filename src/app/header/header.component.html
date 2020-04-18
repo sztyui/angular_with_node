@@ -3,7 +3,14 @@
     <a routerLink="/">MyMessages</a>
   </span>
   <span class="spacer"></span>
+  <div *ngIf="userIsAuthenticated">
+    <mat-icon class="example-icon smaller" aria-hidden="false" aria-label="Example delete icon">accessibility_new</mat-icon>
+    <a class="smaller">{{authenticatedUserName}}</a>
+  </div>
+  <span class="spacer"></span>
   <ul>
+    <li *ngIf="userIsAuthenticated">
+    </li>
     <li *ngIf="userIsAuthenticated"><a mat-button routerLink="/create" routerLinkActive="mat-accent">New Post</a></li>
     <li *ngIf="!userIsAuthenticated"><a mat-button routerLink="/login" routerLinkActive="mat-accent">Login</a></li>
     <li *ngIf="!userIsAuthenticated"><a mat-button routerLink="/signup" routerLinkActive="mat-accent">Signup</a></li>
