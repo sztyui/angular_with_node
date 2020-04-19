@@ -7,9 +7,9 @@ import { AuthService } from 'src/app/auth/auth.service';
 
 
 @Component({
-  selector: "app-post-list",
-  templateUrl: "./post-list.component.html",
-  styleUrls: ["./post-list.component.css"],
+  selector: 'app-post-list',
+  templateUrl: './post-list.component.html',
+  styleUrls: ['./post-list.component.css'],
 })
 export class PostListComponent implements OnInit, OnDestroy {
   public posts: Post[] = [];
@@ -64,6 +64,8 @@ export class PostListComponent implements OnInit, OnDestroy {
   onDelete(id: string) {
     this.postsService.deletePost(id).subscribe(() => {
       this.postsService.getPosts(this.postsPerPage, this.currentPage);
+    }, () => {
+      this.isLoading = false;
     });
   }
 }

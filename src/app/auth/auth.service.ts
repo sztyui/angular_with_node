@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { AuthData } from './auth-data.module'
+import { AuthData } from './auth-data.module';
 import { Subject } from 'rxjs';
 import { Router } from '@angular/router';
 
 
 @Injectable({
-  providedIn: "root"
+  providedIn: 'root'
 })
 export class AuthService {
   private isAuthenticated = false;
-  private authenticatedUserName: string = "";
+  private authenticatedUserName = '';
   private token: string;
   private tokenTimer: NodeJS.Timer;
   private authStatusListener = new Subject<boolean>();
@@ -19,31 +19,31 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  public getToken() {
+  public getToken () {
     return this.token;
   }
 
-  public getIsAuth() {
+  public getIsAuth () {
     return this.isAuthenticated;
   }
 
-  public getAuthStatusListener() {
+  public getAuthStatusListener () {
     return this.authStatusListener.asObservable();
   }
 
-  public getAuthNameListener(){
+  public getAuthNameListener () {
     return this.authNameListener.asObservable();
   }
 
-  public getAuthName(){
+  public getAuthName () {
     return this.authenticatedUserName;
   }
 
-  public getUserId() {
+  public getUserId () {
     return this.userId;
   }
 
-  public createUser(email: string, password: string){
+  public createUser (email: string, password: string) {
     const authData: AuthData = {
       email: email,
       password: password
@@ -55,16 +55,16 @@ export class AuthService {
     });
   }
 
-  public login(email: string, password: string){
+  public login (email: string, password: string) {
     const authData: AuthData = {
       email: email,
       password: password
     };
-    this.http.post<{token: string, expiresIn: number, userId: string}>("http://localhost:3000/api/user/login", authData)
+    this.http.post<{token: string, expiresIn: number, userId: string}>('http://localhost:3000/api/user/login', authData)
       .subscribe(response => {
         const token = response.token;
         this.token = token;
-        if (token){
+        if (token) {
           const expiresInDuration = response.expiresIn;
           this.setAuthTimer(expiresInDuration * 1000);
           this.isAuthenticated = true;
@@ -81,59 +81,61 @@ export class AuthService {
       });
  }
 
- public autoAuthUser() {
+ public autoAuthUser () {
   const authInformation = this.getAuthData();
-  if (!authInformation) return;
+  if (!authInformation) {
+    return;
+  }
   const expiresIn = authInformation.expirationDate.getTime() - (new Date()).getTime();
   if (expiresIn > 0) {
     this.token = authInformation.token;
     this.isAuthenticated = true;
     this.authenticatedUserName = authInformation.email;
     this.userId = authInformation.userId;
-    this.setAuthTimer(expiresIn)
+    this.setAuthTimer(expiresIn);
     this.authStatusListener.next(true);
     this.authNameListener.next(this.authenticatedUserName);
   }
  }
 
-  public logout() {
+  public logout () {
     this.token = null;
     this.isAuthenticated = false;
-    this.authenticatedUserName = "";
+    this.authenticatedUserName = '';
     this.authStatusListener.next(false);
-    this.authNameListener.next("");
+    this.authNameListener.next('');
     this.userId = null;
     clearTimeout(this.tokenTimer);
     this.clearAuthData();
     this.router.navigate(['/']);
   }
 
- private setAuthTimer(duration: number) {
+ private setAuthTimer (duration: number) {
   this.tokenTimer = setTimeout(() => {
     this.logout();
   }, duration);
  }
 
   private saveAuthData (token: string, expirationDate: Date, email: string, userId: string) {
-    localStorage.setItem("token", token);
-    localStorage.setItem("expiration", expirationDate.toISOString());
-    localStorage.setItem("email", email);
-    localStorage.setItem("userId", userId);
+    localStorage.setItem('token', token);
+    localStorage.setItem('expiration', expirationDate.toISOString());
+    localStorage.setItem('email', email);
+    localStorage.setItem('userId', userId);
   }
 
-  private clearAuthData (){
-    localStorage.removeItem("token");
-    localStorage.removeItem("expiration");
-    localStorage.removeItem("email");
-    localStorage.removeItem("userId");
+  private clearAuthData () {
+    localStorage.removeItem('token');
+    localStorage.removeItem('expiration');
+    localStorage.removeItem('email');
+    localStorage.removeItem('userId');
   }
 
- private getAuthData() {
-   const token = localStorage.getItem("token");
-   const expirationDate = localStorage.getItem("expiration");
-   const email = localStorage.getItem("email");
-   const userId = localStorage.getItem("userId");
-   if (!token || !expirationDate){
+ private getAuthData () {
+   const token = localStorage.getItem('token');
+   const expirationDate = localStorage.getItem('expiration');
+   const email = localStorage.getItem('email');
+   const userId = localStorage.getItem('userId');
+   if (!token || !expirationDate) {
     return;
    }
    return {
@@ -141,6 +143,6 @@ export class AuthService {
      expirationDate: new Date(expirationDate),
      email: email,
      userId: userId
-   }
+   };
  }
 }

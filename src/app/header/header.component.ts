@@ -8,12 +8,12 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  public userIsAuthenticated: boolean = false;
-  public authenticatedUserName: string = "";
+  public userIsAuthenticated = false;
+  public authenticatedUserName = '';
   private authListenerSubs: Subscription;
   private authNameSubs: Subscription;
 
-  constructor(private authService: AuthService){}
+  constructor (private authService: AuthService) {}
 
   public ngOnInit() {
     this.userIsAuthenticated = this.authService.getIsAuth();
@@ -30,11 +30,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
   }
 
-  public onLogout() {
+  public onLogout () {
     this.authService.logout();
   }
 
-  public ngOnDestroy(){
+  public ngOnDestroy() {
     this.authListenerSubs.unsubscribe();
     this.authNameSubs.unsubscribe();
   }

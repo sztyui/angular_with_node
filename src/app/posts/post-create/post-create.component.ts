@@ -1,17 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 
 import { PostService } from '../post.service';
 import { Post } from '../post.model';
 import { mimeType } from './mime-type.validator';
+import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-post-create',
   templateUrl: './post-create.component.html',
   styleUrls: ['./post-create.component.css']
 })
-export class PostCreateComponent implements OnInit {
+export class PostCreateComponent implements OnInit, OnDestroy {
 
   public post: Post;
   public isLoading = false;
@@ -19,16 +21,20 @@ export class PostCreateComponent implements OnInit {
   public imagePreview: any;
   public message: string;
 
+  private authStatusSubs: Subscription;
   private mode = 'create';
   private postId: string;
 
-
   constructor(
     public postsService: PostService,
-    public route: ActivatedRoute
+    public route: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
-  ngOnInit() {
+  ngOnInit () {
+    this.authStatusSubs = this.authService.getAuthStatusListener().subscribe(authStatus => {
+      this.isLoading = false;
+    });
     this.form = new FormGroup({
       title: new FormControl(null, {
         validators: [Validators.required, Validators.minLength(3)]
@@ -78,28 +84,34 @@ export class PostCreateComponent implements OnInit {
         this.form.value.title,
         this.form.value.content,
         this.form.value.image);
-    }
-    else if (this.mode === 'edit') {
+    } else if (this.mode === 'edit') {
       this.postsService.updatePost(
         this.postId,
         this.form.value.title,
         this.form.value.content,
         this.form.value.image);
+    } else {
+      return;
     }
     this.form.reset();
   }
 
-  onImagePicked(event: Event){
-    const files = (event.target as HTMLInputElement).files
-    if (files.length === 0)
-      return ;
+  onImagePicked(event: Event) {
+    const files = (event.target as HTMLInputElement).files;
+    if (files.length === 0) {
+      return;
+    }
     const file = files[0];
     this.form.patchValue({image: file});
     this.form.get('image').updateValueAndValidity();
     const reader = new FileReader();
     reader.onload = (_event) => {
       this.imagePreview = reader.result;
-    }
+    };
     reader.readAsDataURL(file);
+  }
+
+  public ngOnDestroy() {
+    this.authStatusSubs.unsubscribe();
   }
 }

@@ -7,12 +7,12 @@ import { Subscription } from 'rxjs';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit, OnDestroy{
+export class LoginComponent implements OnInit, OnDestroy {
   public isLoading = false;
 
   private authStatusSubs: Subscription;
 
-  constructor(public authService: AuthService){}
+  constructor(public authService: AuthService) {}
 
   public ngOnInit () {
     this.authStatusSubs = this.authService.getAuthStatusListener().subscribe((response) => {
@@ -21,14 +21,14 @@ export class LoginComponent implements OnInit, OnDestroy{
   }
 
   onlogin (formData: NgForm) {
-    if (formData.invalid){
+    if (formData.invalid) {
       return;
     }
     this.isLoading = true;
     this.authService.login(
       formData.value.email,
       formData.value.password
-    )
+    );
   }
 
   public ngOnDestroy () {
