@@ -47,7 +47,7 @@ exports.userLogin =  (req, res, next) => {
     }
     const token = jwt.sign(
       {email: foundUser.email, userId: foundUser._id},
-      'eg_a_napmelegtol_a_kopar_szik_sarja_tikkadt_szocskenyajak_legelesznek_rajta',
+      process.env.JWT_KEY,
       { expiresIn: "1h" }
     );
     res.status(200).json({

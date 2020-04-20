@@ -9,7 +9,7 @@ routes = [
 ]
 
 const app = express();
-const dbConnectionString = `mongodb+srv://isti:${process.env.MONGO_PASSWORD}@cluster0-dejvz.mongodb.net/node-angular`
+const dbConnectionString = `mongodb+srv://isti:${process.env.MONGO_ATLAS_PW}@cluster0-dejvz.mongodb.net/node-angular`
 mongoose.connect(dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() =>{
     console.log('Connected to the database!');
