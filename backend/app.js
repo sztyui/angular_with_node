@@ -20,7 +20,8 @@ mongoose.connect(dbConnectionString, { useNewUrlParser: true, useUnifiedTopology
 
 app.use((bodyParser.json()));
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use("/images", express.static(path.join("backend/images")));
+app.use("/images", express.static(path.join(__dirname, "images")));
+app.use("/", express.static(path.join(__dirname, "angular")));
 
 app.use((req, res, next)=>{
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -40,6 +41,9 @@ app.use((req, res, next)=>{
 
 routes.map(route => {
   app.use(route.prefix, route.route);
+})
+app.use((req, res, next) => {
+  res.sendFile(__dirname, "angular", "index.html");
 })
 
 module.exports = app;
